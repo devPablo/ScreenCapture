@@ -22,6 +22,10 @@ namespace WPFApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        private double initialCanvasX;
+        private double initialCanvasY;
+        private bool mouseDownState = false;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -45,6 +49,48 @@ namespace WPFApp
 
             BitmapSource bitmapSource = BitmapConversion.ToWpfBitmap(bitmap);
             mainImage.Source = bitmapSource;
+        }
+
+        private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            initialCanvasX = e.GetPosition(mainCanvas).X;
+            initialCanvasY = e.GetPosition(mainCanvas).Y;
+            mouseDownState = true;
+
+            Canvas.SetLeft(mainRectangle, initialCanvasX);
+            Canvas.SetTop(mainRectangle, initialCanvasY);
+            mainRectangle.Width = 0;
+            mainRectangle.Height = 0;
+        }
+
+        private void MainCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (mouseDownState)
+            {
+                double eventX = e.GetPosition(mainCanvas).X;
+                double eventY = e.GetPosition(mainCanvas).Y;
+
+                if (eventX < initialCanvasX)
+                {
+                    Canvas.SetLeft(mainRectangle, eventX);
+                }
+
+                if (eventY < initialCanvasY)
+                {
+                    Canvas.SetTop(mainRectangle, eventY);
+                }
+
+                mainRectangle.Width = Math.Abs(initialCanvasX - e.GetPosition(mainCanvas).X);
+                mainRectangle.Height = Math.Abs(initialCanvasY - e.GetPosition(mainCanvas).Y);
+            }
+        }
+
+        private void MainCanvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (mouseDownState)
+            {
+                mouseDownState = false;
+            }
         }
     }
 }
