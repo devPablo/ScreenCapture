@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFApp"
         mc:Ignorable="d"
-        Title="MainWindow" WindowStyle="None" KeyDown="MainWindow_KeyDown" WindowState="Maximized">
+        Title="MainWindow" WindowStyle="None" KeyDown="MainWindow_KeyDown" ShowInTaskbar="False" Topmost="True" ForceCursor="True" Visibility="Hidden">
     <Canvas x:Name="mainCanvas" Margin="0" MouseDown="MainCanvas_MouseDown" MouseMove="MainCanvas_MouseMove" MouseUp="MainCanvas_MouseUp">
         <Image x:Name="mainImage" Margin="0"/>
         <Rectangle x:Name="mainRectangle" Fill="#FF2CB16C" Width="0" Height="0" />
