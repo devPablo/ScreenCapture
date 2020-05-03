@@ -33,22 +33,7 @@ namespace WPFApp
         public MainWindow()
         {
             InitializeComponent();
-
-            var hotKeyManager = new HotKeyManager();
-            var hotKey = hotKeyManager.Register(Key.PrintScreen, ModifierKeys.None);
-            hotKeyManager.KeyPressed += HotKeyManagerPressed;
-
-        }
-
-        private void HotKeyManagerPressed(object sender, KeyPressedEventArgs e)
-        {
-            if (e.HotKey.Key == Key.PrintScreen)
-            {
-                TakeScreenshot();
-
-                mainWindow.Show();
-                mainWindow.WindowState = WindowState.Maximized;
-            }
+            TakeScreenshot();
         }
 
         private void MainWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
