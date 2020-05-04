@@ -59,11 +59,14 @@ namespace WPFApp
 
             if (e.Key == Key.Space)
             {
-                TakeCroppedScreenshot();
-                mainCanvas.Visibility = Visibility.Hidden;
-                mainWindow.Visibility = Visibility.Hidden;
-                ShowNotification("ScreenCapture", screenshotName);
-                mainWindow.Close();
+                Bitmap bitmap = TakeCroppedScreenshot();
+                if (SaveScreenshot(bitmap))
+                {
+                    mainCanvas.Visibility = Visibility.Hidden;
+                    mainWindow.Visibility = Visibility.Hidden;
+                    ShowNotification("ScreenCapture", screenshotName);
+                    mainWindow.Close();
+                }
             }
         }
 
@@ -79,31 +82,38 @@ namespace WPFApp
             mainImage.Source = bitmapSource;
         }
 
-        private void TakeCroppedScreenshot()
+        private Bitmap TakeCroppedScreenshot()
         {
             System.Windows.Size sourcePoints = CalculateDPI((int)initialCanvasX, (int)initialCanvasY);
             System.Windows.Size destinationPoints = CalculateDPI((int) mainRectangle.ActualWidth, (int) mainRectangle.ActualHeight);
 
             Bitmap bitmap = CropBitmap(image, new System.Drawing.Rectangle((int) sourcePoints.Width, (int) sourcePoints.Height, (int) destinationPoints.Width, (int) destinationPoints.Height));
-
-            SaveScreenshot(bitmap);
+            return bitmap;
         }
 
-        private void SaveScreenshot(Bitmap bitmap)
+        private bool SaveScreenshot(Bitmap bitmap)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
                 Filter = "(*.png)|*.png",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 FileName = "Screenshot_1"
             };
 
-            if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            DialogResult dialogResult = saveFileDialog.ShowDialog();
+
+            if (dialogResult == System.Windows.Forms.DialogResult.OK)
             {
                 screenshotPath = saveFileDialog.FileName;
                 screenshotName = System.IO.Path.GetFileName(screenshotPath);
                 bitmap.Save(saveFileDialog.FileName);
+                saveFileDialog.Dispose();
+                return true;
+            } else if (dialogResult == System.Windows.Forms.DialogResult.Cancel)
+            {
+                saveFileDialog.Dispose();
+                return false;
             }
+            return false;
         }
 
         private Bitmap CropBitmap(Bitmap img, System.Drawing.Rectangle cropArea)
