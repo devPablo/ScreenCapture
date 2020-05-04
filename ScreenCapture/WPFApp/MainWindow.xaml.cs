@@ -19,6 +19,7 @@ using System.Windows.Shapes;
 using System.Windows.Input;
 using GlobalHotKey;
 using PerMonitorDPI;
+using System.Diagnostics;
 
 namespace WPFApp
 {
@@ -55,6 +56,9 @@ namespace WPFApp
             if (e.Key == Key.Space)
             {
                 TakeCroppedScreenshot();
+                mainCanvas.Visibility = Visibility.Hidden;
+                mainWindow.Visibility = Visibility.Hidden;
+                ShowNotification("ScreenCapture", "screenshot.png");
                 mainWindow.Close();
             }
         }
@@ -77,7 +81,10 @@ namespace WPFApp
             System.Windows.Size destinationPoints = CalculateDPI((int) mainRectangle.ActualWidth, (int) mainRectangle.ActualHeight);
 
             Bitmap bitmap = CropBitmap(image, new System.Drawing.Rectangle((int) sourcePoints.Width, (int) sourcePoints.Height, (int) destinationPoints.Width, (int) destinationPoints.Height));
+
+            // Save Screenshot
             bitmap.Save("C:\\Users\\Pablo\\Desktop\\screenshot.png");
+            
         }
 
         private Bitmap CropBitmap(Bitmap img, System.Drawing.Rectangle cropArea)
@@ -100,6 +107,23 @@ namespace WPFApp
             double finalY = y * dpiHeightFactor;
 
             return new System.Windows.Size(finalX, finalY);
+        }
+
+        private void ShowNotification(string title, string fileName)
+        {
+            NotifyIcon notifyIcon = new NotifyIcon
+            {
+                Visible = true,
+                Icon = SystemIcons.Information
+            };
+
+            notifyIcon.BalloonTipClicked += NotifyIcon_BalloonTipClicked;
+            notifyIcon.ShowBalloonTip(5000, title, $"Screenshot is saved to {fileName}", ToolTipIcon.None);
+        }
+
+        private void NotifyIcon_BalloonTipClicked(object sender, EventArgs e)
+        {
+            Process.Start($"C:\\Users\\Pablo\\Desktop\\screenshot.png");
         }
 
         private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
