@@ -20,6 +20,7 @@ using System.Windows.Input;
 using GlobalHotKey;
 using PerMonitorDPI;
 using System.Diagnostics;
+using System.IO;
 
 namespace WPFApp
 {
@@ -35,6 +36,9 @@ namespace WPFApp
 
         private int screenWidth;
         private int screenHeight;
+
+        private string screenshotPath;
+        private string screenshotName;
 
         public MainWindow()
         {
@@ -58,7 +62,7 @@ namespace WPFApp
                 TakeCroppedScreenshot();
                 mainCanvas.Visibility = Visibility.Hidden;
                 mainWindow.Visibility = Visibility.Hidden;
-                ShowNotification("ScreenCapture", "screenshot.png");
+                ShowNotification("ScreenCapture", screenshotName);
                 mainWindow.Close();
             }
         }
@@ -82,9 +86,24 @@ namespace WPFApp
 
             Bitmap bitmap = CropBitmap(image, new System.Drawing.Rectangle((int) sourcePoints.Width, (int) sourcePoints.Height, (int) destinationPoints.Width, (int) destinationPoints.Height));
 
-            // Save Screenshot
-            bitmap.Save("C:\\Users\\Pablo\\Desktop\\screenshot.png");
-            
+            SaveScreenshot(bitmap);
+        }
+
+        private void SaveScreenshot(Bitmap bitmap)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "(*.png)|*.png",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                FileName = "Screenshot_1"
+            };
+
+            if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                screenshotPath = saveFileDialog.FileName;
+                screenshotName = System.IO.Path.GetFileName(screenshotPath);
+                bitmap.Save(saveFileDialog.FileName);
+            }
         }
 
         private Bitmap CropBitmap(Bitmap img, System.Drawing.Rectangle cropArea)
@@ -123,7 +142,7 @@ namespace WPFApp
 
         private void NotifyIcon_BalloonTipClicked(object sender, EventArgs e)
         {
-            Process.Start($"C:\\Users\\Pablo\\Desktop\\screenshot.png");
+            Process.Start(screenshotPath);
         }
 
         private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
