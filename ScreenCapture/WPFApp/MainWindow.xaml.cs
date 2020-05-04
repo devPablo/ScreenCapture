@@ -18,6 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Input;
 using GlobalHotKey;
+using PerMonitorDPI;
 
 namespace WPFApp
 {
@@ -29,11 +30,18 @@ namespace WPFApp
         private double initialCanvasX;
         private double initialCanvasY;
         private bool mouseDownState = false;
+        private Bitmap image;
+
+        private int screenWidth;
+        private int screenHeight;
 
         public MainWindow()
         {
             InitializeComponent();
-            TakeScreenshot();
+            screenWidth = Screen.PrimaryScreen.Bounds.Width;
+            screenHeight = Screen.PrimaryScreen.Bounds.Height;
+
+            InitScreenshot();
         }
 
         private void MainWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -42,17 +50,54 @@ namespace WPFApp
             {
                 mainWindow.Close();
             }
+
+            if (e.Key == Key.Space)
+            {
+                TakeCroppedScreenshot();
+            }
         }
 
-        public void TakeScreenshot()
+        private void InitScreenshot()
         {
-            Bitmap bitmap = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+            Bitmap bitmap = new Bitmap(screenWidth, screenHeight);
             Graphics graphics = Graphics.FromImage(bitmap);
 
             graphics.CopyFromScreen(0, 0, 0, 0, bitmap.Size);
 
+            this.image = bitmap;
             BitmapSource bitmapSource = BitmapConversion.ToWpfBitmap(bitmap);
             mainImage.Source = bitmapSource;
+        }
+
+        private void TakeCroppedScreenshot()
+        {
+            System.Windows.Size sourcePoints = CalculateDPI((int)initialCanvasX, (int)initialCanvasY);
+            System.Windows.Size destinationPoints = CalculateDPI((int) mainRectangle.ActualWidth, (int) mainRectangle.ActualHeight);
+
+            Bitmap bitmap = CropBitmap(image, new System.Drawing.Rectangle((int) sourcePoints.Width, (int) sourcePoints.Height, (int) destinationPoints.Width, (int) destinationPoints.Height));
+            bitmap.Save("C:\\Users\\Pablo\\Desktop\\screenshot.png");
+        }
+
+        private Bitmap CropBitmap(Bitmap img, System.Drawing.Rectangle cropArea)
+        {
+            Bitmap bmp = new Bitmap(cropArea.Width, cropArea.Height);
+            using (Graphics gph = Graphics.FromImage(bmp))
+            {
+                gph.DrawImage(img, new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), cropArea, GraphicsUnit.Pixel);
+            }
+            return bmp;
+        }
+
+        public System.Windows.Size CalculateDPI(int x, int y)
+        {
+            PresentationSource mainWindowPresentationSource = PresentationSource.FromVisual(this);
+            Matrix m = mainWindowPresentationSource.CompositionTarget.TransformToDevice;
+            var dpiWidthFactor = m.M11;
+            var dpiHeightFactor = m.M22;
+            double finalX = x * dpiWidthFactor;
+            double finalY = y * dpiHeightFactor;
+
+            return new System.Windows.Size(finalX, finalY);
         }
 
         private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
