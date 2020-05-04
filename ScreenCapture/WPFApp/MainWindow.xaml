@@ -8,7 +8,11 @@
         Title="MainWindow" WindowStyle="None" KeyDown="MainWindow_KeyDown" ShowInTaskbar="False" Topmost="True" ForceCursor="True" Visibility="Visible" ResizeMode="NoResize" Left="0" Top="0" WindowState="Maximized">
     <Canvas x:Name="mainCanvas" Margin="0" MouseDown="MainCanvas_MouseDown" MouseMove="MainCanvas_MouseMove" MouseUp="MainCanvas_MouseUp">
         <Image x:Name="mainImage" Margin="0"/>
-        <Rectangle x:Name="mainRectangle" Fill="#FF2CB16C" Width="0" Height="0" />
+        <Rectangle x:Name="mainRectangle" Width="0" Height="0" Stroke="#FFADADAD" >
+            <Rectangle.Fill>
+                <SolidColorBrush Color="#FF646464" Opacity="0.3"/>
+            </Rectangle.Fill>
+        </Rectangle>
     </Canvas>
 
 

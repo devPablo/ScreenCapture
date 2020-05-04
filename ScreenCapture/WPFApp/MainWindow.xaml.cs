@@ -41,6 +41,7 @@ namespace WPFApp
             screenWidth = Screen.PrimaryScreen.Bounds.Width;
             screenHeight = Screen.PrimaryScreen.Bounds.Height;
 
+            mainCanvas.Cursor = System.Windows.Input.Cursors.Cross;
             InitScreenshot();
         }
 
@@ -54,6 +55,7 @@ namespace WPFApp
             if (e.Key == Key.Space)
             {
                 TakeCroppedScreenshot();
+                mainWindow.Close();
             }
         }
 
@@ -110,6 +112,7 @@ namespace WPFApp
             Canvas.SetTop(mainRectangle, initialCanvasY);
             mainRectangle.Width = 0;
             mainRectangle.Height = 0;
+            
         }
 
         private void MainCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
