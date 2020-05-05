@@ -85,9 +85,9 @@ namespace WPFApp
         private Bitmap TakeCroppedScreenshot()
         {
             System.Windows.Size sourcePoints = CalculateDPI((int)initialCanvasX, (int)initialCanvasY);
-            System.Windows.Size destinationPoints = CalculateDPI((int) mainRectangle.ActualWidth, (int) mainRectangle.ActualHeight);
+            System.Windows.Size destinationPoints = CalculateDPI((int)mainRectangle.ActualWidth, (int)mainRectangle.ActualHeight);
 
-            Bitmap bitmap = CropBitmap(image, new System.Drawing.Rectangle((int) sourcePoints.Width, (int) sourcePoints.Height, (int) destinationPoints.Width, (int) destinationPoints.Height));
+            Bitmap bitmap = CropBitmap(image, new System.Drawing.Rectangle((int)sourcePoints.Width, (int)sourcePoints.Height, (int)destinationPoints.Width, (int)destinationPoints.Height));
             return bitmap;
         }
 
@@ -108,7 +108,8 @@ namespace WPFApp
                 bitmap.Save(saveFileDialog.FileName);
                 saveFileDialog.Dispose();
                 return true;
-            } else if (dialogResult == System.Windows.Forms.DialogResult.Cancel)
+            }
+            else if (dialogResult == System.Windows.Forms.DialogResult.Cancel)
             {
                 saveFileDialog.Dispose();
                 return false;
@@ -165,13 +166,15 @@ namespace WPFApp
             Canvas.SetTop(mainRectangle, initialCanvasY);
             mainRectangle.Width = 0;
             mainRectangle.Height = 0;
-            
+
         }
 
         private void MainCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (mouseDownState)
             {
+                mainMenuBorder.Visibility = Visibility.Hidden;
+
                 double eventX = e.GetPosition(mainCanvas).X;
                 double eventY = e.GetPosition(mainCanvas).Y;
 
@@ -195,6 +198,32 @@ namespace WPFApp
             if (mouseDownState)
             {
                 mouseDownState = false;
+
+                // Init Menu
+                mainMenuBorder.Visibility = Visibility.Visible;
+                mainMenuBorder.Width = mainButton.Width * mainMenu.Children.Count;
+                mainMenuBorder.Height = mainMenuBorder.Height + mainButton.Height / 2;
+
+                // Middle
+                //Canvas.SetLeft(mainMenuBorder, mainWindow.Width / 2 - mainMenuBorder.Width / 2);
+                //Canvas.SetTop(mainMenuBorder, mainWindow.Height * 0.85);
+
+                // Corner
+                Canvas.SetLeft(mainMenuBorder, (initialCanvasX + mainRectangle.Width) - mainMenuBorder.Width - 1);
+                Canvas.SetTop(mainMenuBorder, initialCanvasY + mainRectangle.Height);
+
+            }
+        }
+
+        private void MainButton_Click(object sender, RoutedEventArgs e)
+        {
+            Bitmap bitmap = TakeCroppedScreenshot();
+            if (SaveScreenshot(bitmap))
+            {
+                mainCanvas.Visibility = Visibility.Hidden;
+                mainWindow.Visibility = Visibility.Hidden;
+                ShowNotification("ScreenCapture", screenshotName);
+                mainWindow.Close();
             }
         }
     }
