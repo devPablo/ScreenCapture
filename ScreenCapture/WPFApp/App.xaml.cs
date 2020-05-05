@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using GlobalHotKey;
 
@@ -13,7 +15,7 @@ namespace WPFApp
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : System.Windows.Application
     {
         MainWindow mainWindow = null;
 
@@ -22,6 +24,12 @@ namespace WPFApp
             var hotKeyManager = new HotKeyManager();
             var hotKey = hotKeyManager.Register(Key.PrintScreen, ModifierKeys.None);
             hotKeyManager.KeyPressed += HotKeyManagerPressed;
+
+            NotifyIcon notifyIcon = new NotifyIcon
+            {
+                Visible = true,
+                Icon = SystemIcons.Information
+            };
         }
 
         private void HotKeyManagerPressed(object sender, KeyPressedEventArgs e)

@@ -36,8 +36,7 @@ namespace WPFApp
 
         private int screenWidth;
         private int screenHeight;
-
-        private NotifyIcon notifyIcon;
+        
         private string screenshotPath;
         private string screenshotName;
 
@@ -142,18 +141,20 @@ namespace WPFApp
 
         private void ShowNotification(string title, string fileName)
         {
-            notifyIcon = new NotifyIcon
+            NotifyIcon notifyIcon = new NotifyIcon
             {
                 Visible = true,
                 Icon = SystemIcons.Information
             };
 
             notifyIcon.BalloonTipClicked += NotifyIcon_BalloonTipClicked;
+            notifyIcon.BalloonTipClosed += (sender, e) => { var thisIcon = (NotifyIcon)sender; thisIcon.Visible = false; thisIcon.Dispose(); };
             notifyIcon.ShowBalloonTip(5000, title, $"Screenshot is saved to {fileName}", ToolTipIcon.None);
         }
 
         private void NotifyIcon_BalloonTipClicked(object sender, EventArgs e)
         {
+            var thisIcon = (NotifyIcon)sender; thisIcon.Visible = false; thisIcon.Dispose();
             Process.Start(screenshotPath);
         }
 
@@ -242,10 +243,6 @@ namespace WPFApp
 
         private void StopApplication()
         {
-            if (notifyIcon != null)
-            {
-                notifyIcon.Dispose();
-            }
             mainWindow.Close();
         }
     }
