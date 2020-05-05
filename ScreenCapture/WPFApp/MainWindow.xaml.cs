@@ -37,6 +37,7 @@ namespace WPFApp
         private int screenWidth;
         private int screenHeight;
 
+        private NotifyIcon notifyIcon;
         private string screenshotPath;
         private string screenshotName;
 
@@ -54,7 +55,7 @@ namespace WPFApp
         {
             if (e.Key == Key.Escape)
             {
-                mainWindow.Close();
+                StopApplication();
             }
 
             if (e.Key == Key.Space)
@@ -65,7 +66,7 @@ namespace WPFApp
                     mainCanvas.Visibility = Visibility.Hidden;
                     mainWindow.Visibility = Visibility.Hidden;
                     ShowNotification("ScreenCapture", screenshotName);
-                    mainWindow.Close();
+                    StopApplication();
                 }
             }
         }
@@ -141,7 +142,7 @@ namespace WPFApp
 
         private void ShowNotification(string title, string fileName)
         {
-            NotifyIcon notifyIcon = new NotifyIcon
+            notifyIcon = new NotifyIcon
             {
                 Visible = true,
                 Icon = SystemIcons.Information
@@ -158,6 +159,9 @@ namespace WPFApp
 
         private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            mainMenuBorder.Visibility = Visibility.Hidden;
+            mainResolution.Visibility = Visibility.Visible;
+
             initialCanvasX = e.GetPosition(mainCanvas).X;
             initialCanvasY = e.GetPosition(mainCanvas).Y;
             mouseDownState = true;
@@ -173,8 +177,7 @@ namespace WPFApp
         {
             if (mouseDownState)
             {
-                mainMenuBorder.Visibility = Visibility.Hidden;
-
+                // Screen Handling
                 double eventX = e.GetPosition(mainCanvas).X;
                 double eventY = e.GetPosition(mainCanvas).Y;
 
@@ -190,6 +193,16 @@ namespace WPFApp
 
                 mainRectangle.Width = Math.Abs(initialCanvasX - e.GetPosition(mainCanvas).X);
                 mainRectangle.Height = Math.Abs(initialCanvasY - e.GetPosition(mainCanvas).Y);
+
+
+
+
+
+                // Resolution Label Handling
+                System.Windows.Size actualCoordinates = CalculateDPI((int) mainRectangle.Width, (int) mainRectangle.Height);
+                mainResolution.Content = (int) actualCoordinates.Width + " x " + (int) actualCoordinates.Height;
+                Canvas.SetLeft(mainResolution, (initialCanvasX) + 1);
+                Canvas.SetTop(mainResolution, (initialCanvasY - mainResolution.ActualHeight - mainResolution.Padding.Top) - 1);
             }
         }
 
@@ -210,7 +223,7 @@ namespace WPFApp
 
                 // Corner
                 Canvas.SetLeft(mainMenuBorder, (initialCanvasX + mainRectangle.Width) - mainMenuBorder.Width - 1);
-                Canvas.SetTop(mainMenuBorder, initialCanvasY + mainRectangle.Height);
+                Canvas.SetTop(mainMenuBorder, (initialCanvasY + mainRectangle.Height) + 1);
 
             }
         }
@@ -225,6 +238,15 @@ namespace WPFApp
                 ShowNotification("ScreenCapture", screenshotName);
                 mainWindow.Close();
             }
+        }
+
+        private void StopApplication()
+        {
+            if (notifyIcon != null)
+            {
+                notifyIcon.Dispose();
+            }
+            mainWindow.Close();
         }
     }
 }

@@ -30,7 +30,15 @@
                 <Button x:Name="mainButton" Width="86" Height="28" Content="Screenshot" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="Black" Click="MainButton_Click" Cursor="Arrow" Padding="5,5,5,5" BorderThickness="0"/>
             </StackPanel>
         </Border>
-        
+        <Label x:Name="mainResolution" Padding="3" Visibility="Hidden" FontFamily="Consolas">
+            <Label.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FFF4F5F7" Offset="0"/>
+                    <GradientStop Color="#FFF8F6F9" Offset="1"/>
+                </LinearGradientBrush>
+            </Label.Background>
+        </Label>
+
 
     </Canvas>
 
