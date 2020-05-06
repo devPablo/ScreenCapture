@@ -33,6 +33,7 @@ namespace WPFApp
         private double initialCanvasX;
         private double initialCanvasY;
         private bool mouseDownState = false;
+        private bool isDraw = false;
 
         private int screenWidth;
         private int screenHeight;
@@ -54,7 +55,7 @@ namespace WPFApp
             InitScreenshot();
         }
 
-        private void MainWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void MainWindow_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
             {
@@ -79,8 +80,12 @@ namespace WPFApp
             System.Windows.Size sourcePoints = CalculateDPI((int)initialCanvasX, (int)initialCanvasY);
             System.Windows.Size destinationPoints = CalculateDPI((int)mainRectangle.ActualWidth, (int)mainRectangle.ActualHeight);
 
-            Bitmap bitmap = CropBitmap(image, new System.Drawing.Rectangle((int)sourcePoints.Width, (int)sourcePoints.Height, (int)destinationPoints.Width, (int)destinationPoints.Height));
-            return bitmap;
+            Bitmap bitmap = new Bitmap(screenWidth, screenHeight);
+            Graphics graphics = Graphics.FromImage(bitmap);
+            graphics.CopyFromScreen(0, 0, 0, 0, bitmap.Size);
+
+            Bitmap bitmap2 = CropBitmap(bitmap, new System.Drawing.Rectangle((int)sourcePoints.Width, (int)sourcePoints.Height, (int)destinationPoints.Width, (int)destinationPoints.Height));
+            return bitmap2;
         }
 
         private Bitmap CropBitmap(Bitmap img, System.Drawing.Rectangle cropArea)
@@ -174,25 +179,32 @@ namespace WPFApp
                 if (eventX < initialCanvasX)
                 {
                     Canvas.SetLeft(mainRectangle, eventX);
+                    Canvas.SetLeft(mainRectangleBorder, eventX);
                 }
                 else
                 {
                     Canvas.SetLeft(mainRectangle, initialCanvasX);
+                    Canvas.SetLeft(mainRectangleBorder, initialCanvasX);
 
                 }
 
                 if (eventY < initialCanvasY)
                 {
                     Canvas.SetTop(mainRectangle, eventY);
+                    Canvas.SetTop(mainRectangleBorder, eventY);
                 }
                 else
                 {
                     Canvas.SetTop(mainRectangle, initialCanvasY);
+                    Canvas.SetTop(mainRectangleBorder, initialCanvasY);
                 }
 
 
                 mainRectangle.Width = Math.Abs(initialCanvasX - e.GetPosition(mainCanvas).X);
                 mainRectangle.Height = Math.Abs(initialCanvasY - e.GetPosition(mainCanvas).Y);
+
+                mainRectangleBorder.Width = Math.Abs(initialCanvasX - e.GetPosition(mainCanvas).X);
+                mainRectangleBorder.Height = Math.Abs(initialCanvasY - e.GetPosition(mainCanvas).Y);
 
 
                 // Dark Area
@@ -268,8 +280,8 @@ namespace WPFApp
 
                 // Init Menu
                 mainMenuBorder.Visibility = Visibility.Visible;
-                mainMenuBorder.Width = mainButton.Width * mainMenu.Children.Count;
-                mainMenuBorder.Height = mainMenuBorder.Height + mainButton.Height / 2;
+                mainMenuBorder.Width = screenshotButton.Width * mainMenu.Children.Count;
+                mainMenuBorder.Height = mainMenuBorder.Height + screenshotButton.Height / 2;
 
                 // Middle
                 //Canvas.SetLeft(mainMenuBorder, mainWindow.Width / 2 - mainMenuBorder.Width / 2);
@@ -279,10 +291,13 @@ namespace WPFApp
                 Canvas.SetLeft(mainMenuBorder, (initialCanvasX + mainRectangle.Width) - mainMenuBorder.Width - 1);
                 Canvas.SetTop(mainMenuBorder, (initialCanvasY + mainRectangle.Height) + 1);
 
+                // Ink Canvas
+                drawCanvas.Width = screenWidth;
+                drawCanvas.Height = screenHeight;
             }
         }
 
-        private void MainButton_Click(object sender, RoutedEventArgs e)
+        private void ScreenshotButton_Click(object sender, RoutedEventArgs e)
         {
             Bitmap bitmap = TakeCroppedScreenshot();
             if (SaveScreenshot(bitmap))
@@ -291,6 +306,23 @@ namespace WPFApp
                 mainWindow.Visibility = Visibility.Hidden;
                 ShowNotification("ScreenCapture", screenshotName);
                 StopApplication();
+            }
+        }
+
+        private void DrawButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (isDraw)
+            {
+                isDraw = false;
+                System.Windows.Controls.Panel.SetZIndex(drawCanvas, 1);
+                System.Windows.Controls.Panel.SetZIndex(mainRectangle, 3);
+                drawCanvas.IsEnabled = false;
+            } else
+            {
+                isDraw = true;
+                System.Windows.Controls.Panel.SetZIndex(drawCanvas, 3);
+                System.Windows.Controls.Panel.SetZIndex(mainRectangle, 1);
+                drawCanvas.IsEnabled = true;
             }
         }
 
