@@ -8,11 +8,30 @@
         Title="MainWindow" WindowStyle="None" KeyDown="MainWindow_KeyDown" ShowInTaskbar="False" Topmost="True" ForceCursor="True" Visibility="Visible" ResizeMode="NoResize" Left="0" Top="0" WindowState="Maximized">
     <Canvas x:Name="mainCanvas" Margin="0" MouseDown="MainCanvas_MouseDown" MouseMove="MainCanvas_MouseMove" MouseUp="MainCanvas_MouseUp">
         <Image x:Name="mainImage" Margin="0"/>
-        <Rectangle x:Name="mainRectangle" Width="0" Height="0" Stroke="#FFADADAD" StrokeThickness="0.5" >
+        <Rectangle x:Name="topRectangle" Canvas.Left="0" Canvas.Top="0">
             <Rectangle.Fill>
-                <SolidColorBrush Color="#FF646464" Opacity="0.3"/>
+                <SolidColorBrush Color="Black" Opacity="0.5"/>
             </Rectangle.Fill>
         </Rectangle>
+        <Rectangle x:Name="leftRectangle" Canvas.Left="0" Canvas.Top="0">
+            <Rectangle.Fill>
+                <SolidColorBrush Color="Black" Opacity="0.5"/>
+            </Rectangle.Fill>
+        </Rectangle>
+
+        <Rectangle x:Name="bottomRectangle" Canvas.Left="0" Canvas.Top="0">
+            <Rectangle.Fill>
+                <SolidColorBrush Color="Black" Opacity="0.5"/>
+            </Rectangle.Fill>
+        </Rectangle>
+
+        <Rectangle x:Name="rightRectangle" Canvas.Left="0" Canvas.Top="0">
+            <Rectangle.Fill>
+                <SolidColorBrush Color="Black" Opacity="0.5"/>
+            </Rectangle.Fill>
+        </Rectangle>
+
+        <Rectangle x:Name="mainRectangle" Width="0" Height="0" StrokeThickness="0.5"/>
         <Border x:Name="mainMenuBorder" Canvas.Left="0" Canvas.Top="0" Padding="5" Visibility="Hidden">
             <Border.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -38,8 +57,7 @@
                 </LinearGradientBrush>
             </Label.Background>
         </Label>
-
-
+        
     </Canvas>
 
 

@@ -21,6 +21,7 @@ using GlobalHotKey;
 using PerMonitorDPI;
 using System.Diagnostics;
 using System.IO;
+using System.Windows.Resources;
 
 namespace WPFApp
 {
@@ -32,11 +33,11 @@ namespace WPFApp
         private double initialCanvasX;
         private double initialCanvasY;
         private bool mouseDownState = false;
-        private Bitmap image;
 
         private int screenWidth;
         private int screenHeight;
-        
+        Bitmap image;
+
         private string screenshotPath;
         private string screenshotName;
 
@@ -45,6 +46,9 @@ namespace WPFApp
             InitializeComponent();
             screenWidth = Screen.PrimaryScreen.Bounds.Width;
             screenHeight = Screen.PrimaryScreen.Bounds.Height;
+
+            //Set MacOS Mojave Crosshair Cursor
+            //mainCanvas.Cursor = new System.Windows.Input.Cursor(new MemoryStream(Properties.Resources.Crosshair));
 
             mainCanvas.Cursor = System.Windows.Input.Cursors.Cross;
             InitScreenshot();
@@ -56,18 +60,6 @@ namespace WPFApp
             {
                 StopApplication();
             }
-
-            if (e.Key == Key.Space)
-            {
-                Bitmap bitmap = TakeCroppedScreenshot();
-                if (SaveScreenshot(bitmap))
-                {
-                    mainCanvas.Visibility = Visibility.Hidden;
-                    mainWindow.Visibility = Visibility.Hidden;
-                    ShowNotification("ScreenCapture", screenshotName);
-                    StopApplication();
-                }
-            }
         }
 
         private void InitScreenshot()
@@ -77,8 +69,8 @@ namespace WPFApp
 
             graphics.CopyFromScreen(0, 0, 0, 0, bitmap.Size);
 
-            this.image = bitmap;
             BitmapSource bitmapSource = BitmapConversion.ToWpfBitmap(bitmap);
+            this.image = bitmap;
             mainImage.Source = bitmapSource;
         }
 
@@ -89,6 +81,16 @@ namespace WPFApp
 
             Bitmap bitmap = CropBitmap(image, new System.Drawing.Rectangle((int)sourcePoints.Width, (int)sourcePoints.Height, (int)destinationPoints.Width, (int)destinationPoints.Height));
             return bitmap;
+        }
+
+        private Bitmap CropBitmap(Bitmap img, System.Drawing.Rectangle cropArea)
+        {
+            Bitmap bmp = new Bitmap(cropArea.Width, cropArea.Height);
+            using (Graphics gph = Graphics.FromImage(bmp))
+            {
+                gph.DrawImage(img, new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), cropArea, GraphicsUnit.Pixel);
+            }
+            return bmp;
         }
 
         private bool SaveScreenshot(Bitmap bitmap)
@@ -115,16 +117,6 @@ namespace WPFApp
                 return false;
             }
             return false;
-        }
-
-        private Bitmap CropBitmap(Bitmap img, System.Drawing.Rectangle cropArea)
-        {
-            Bitmap bmp = new Bitmap(cropArea.Width, cropArea.Height);
-            using (Graphics gph = Graphics.FromImage(bmp))
-            {
-                gph.DrawImage(img, new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), cropArea, GraphicsUnit.Pixel);
-            }
-            return bmp;
         }
 
         public System.Windows.Size CalculateDPI(int x, int y)
@@ -169,9 +161,6 @@ namespace WPFApp
 
             Canvas.SetLeft(mainRectangle, initialCanvasX);
             Canvas.SetTop(mainRectangle, initialCanvasY);
-            mainRectangle.Width = 0;
-            mainRectangle.Height = 0;
-
         }
 
         private void MainCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -186,22 +175,86 @@ namespace WPFApp
                 {
                     Canvas.SetLeft(mainRectangle, eventX);
                 }
+                else
+                {
+                    Canvas.SetLeft(mainRectangle, initialCanvasX);
+
+                }
 
                 if (eventY < initialCanvasY)
                 {
                     Canvas.SetTop(mainRectangle, eventY);
                 }
+                else
+                {
+                    Canvas.SetTop(mainRectangle, initialCanvasY);
+                }
+
 
                 mainRectangle.Width = Math.Abs(initialCanvasX - e.GetPosition(mainCanvas).X);
                 mainRectangle.Height = Math.Abs(initialCanvasY - e.GetPosition(mainCanvas).Y);
 
 
+                // Dark Area
 
+                // Top
+                topRectangle.Width = screenWidth;
+                if (eventY < initialCanvasY)
+                {
+                    topRectangle.Height = Math.Abs(mainRectangle.Height - initialCanvasY);
+                }
+                else
+                {
+                    topRectangle.Height = initialCanvasY;
+                }
+
+                // Left
+                Canvas.SetTop(leftRectangle, topRectangle.Height);
+                leftRectangle.Height = screenHeight - topRectangle.Height;
+                if (eventX < initialCanvasX)
+                {
+                    leftRectangle.Width = Math.Abs(mainRectangle.Width - initialCanvasX);
+                }
+                else
+                {
+                    leftRectangle.Width = initialCanvasX;
+                }
+
+                // Bottom
+                Canvas.SetLeft(bottomRectangle, leftRectangle.Width);
+                bottomRectangle.Width = screenWidth - leftRectangle.Width;
+                bottomRectangle.Height = Math.Abs(screenHeight - (initialCanvasY + mainRectangle.Height));
+                if (eventY < initialCanvasY)
+                {
+                    Canvas.SetTop(bottomRectangle, initialCanvasY);
+                    bottomRectangle.Height = screenHeight - initialCanvasY;
+                }
+                else
+                {
+                    Canvas.SetTop(bottomRectangle, initialCanvasY + mainRectangle.Height);
+                }
+
+                // Right
+                Canvas.SetTop(rightRectangle, 0);
+                Canvas.SetLeft(rightRectangle, (initialCanvasX + mainRectangle.Width));
+                rightRectangle.Width = Math.Abs(screenWidth - (initialCanvasX + mainRectangle.Width));
+                rightRectangle.Height = screenHeight - bottomRectangle.Height;
+
+                if (eventX < initialCanvasX)
+                {
+                    Canvas.SetLeft(rightRectangle, initialCanvasX);
+                    rightRectangle.Width = screenWidth - initialCanvasX;
+                } else
+                {
+
+                }
+
+                topRectangle.Width = Canvas.GetLeft(rightRectangle);
 
 
                 // Resolution Label Handling
-                System.Windows.Size actualCoordinates = CalculateDPI((int) mainRectangle.Width, (int) mainRectangle.Height);
-                mainResolution.Content = (int) actualCoordinates.Width + " x " + (int) actualCoordinates.Height;
+                System.Windows.Size actualCoordinates = CalculateDPI((int)mainRectangle.Width, (int)mainRectangle.Height);
+                mainResolution.Content = (int)actualCoordinates.Width + " x " + (int)actualCoordinates.Height;
                 Canvas.SetLeft(mainResolution, (initialCanvasX) + 1);
                 Canvas.SetTop(mainResolution, (initialCanvasY - mainResolution.ActualHeight - mainResolution.Padding.Top) - 1);
             }
@@ -237,7 +290,7 @@ namespace WPFApp
                 mainCanvas.Visibility = Visibility.Hidden;
                 mainWindow.Visibility = Visibility.Hidden;
                 ShowNotification("ScreenCapture", screenshotName);
-                mainWindow.Close();
+                StopApplication();
             }
         }
 
