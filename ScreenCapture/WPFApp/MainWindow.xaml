@@ -6,43 +6,41 @@
         xmlns:local="clr-namespace:WPFApp"
         mc:Ignorable="d"
         Title="MainWindow" WindowStyle="None" ShowInTaskbar="False" Topmost="True" ForceCursor="True" Visibility="Visible" ResizeMode="NoResize" Left="0" Top="0" WindowState="Maximized" PreviewKeyDown="MainWindow_PreviewKeyDown">
+    
     <Canvas x:Name="mainCanvas" Margin="0" MouseDown="MainCanvas_MouseDown" MouseMove="MainCanvas_MouseMove" MouseUp="MainCanvas_MouseUp">
-        
-        <InkCanvas x:Name="drawCanvas" Width="0" Height="0" Canvas.Left="0" Canvas.Top="0">
+
+        <InkCanvas x:Name="drawCanvas" Width="0" Height="0" Canvas.Left="0" Canvas.Top="0" Cursor="Arrow" ForceCursor="True" Background="{x:Null}">
             <InkCanvas.DefaultDrawingAttributes>
                 <DrawingAttributes Color="Red" FitToCurve="True" Height="2.0031496062992127" IgnorePressure="False" IsHighlighter="False" StylusTip="Ellipse" StylusTipTransform="Identity" Width="2.0031496062992127"/>
             </InkCanvas.DefaultDrawingAttributes>
-            <InkCanvas.Background>
-                <SolidColorBrush Color="White" Opacity="0"/>
-            </InkCanvas.Background>
         </InkCanvas>
-        
+
         <Image x:Name="mainImage" Margin="0"/>
         <Rectangle x:Name="topRectangle" Canvas.Left="0" Canvas.Top="0">
             <Rectangle.Fill>
-                <SolidColorBrush Color="Black" Opacity="0.5"/>
+                <SolidColorBrush Color="Black" Opacity="0.35"/>
             </Rectangle.Fill>
         </Rectangle>
         <Rectangle x:Name="leftRectangle" Canvas.Left="0" Canvas.Top="0">
             <Rectangle.Fill>
-                <SolidColorBrush Color="Black" Opacity="0.5"/>
+                <SolidColorBrush Color="Black" Opacity="0.35"/>
             </Rectangle.Fill>
         </Rectangle>
 
         <Rectangle x:Name="bottomRectangle" Canvas.Left="0" Canvas.Top="0">
             <Rectangle.Fill>
-                <SolidColorBrush Color="Black" Opacity="0.5"/>
+                <SolidColorBrush Color="Black" Opacity="0.35"/>
             </Rectangle.Fill>
         </Rectangle>
 
         <Rectangle x:Name="rightRectangle" Canvas.Left="0" Canvas.Top="0">
             <Rectangle.Fill>
-                <SolidColorBrush Color="Black" Opacity="0.5"/>
+                <SolidColorBrush Color="Black" Opacity="0.35"/>
             </Rectangle.Fill>
         </Rectangle>
 
-        <Border x:Name="mainRectangleBorder" Width="0" Height="0" Canvas.Left="0" Canvas.Top="0" BorderThickness="1" BorderBrush="White"/>
-        <Rectangle x:Name="mainRectangle" Width="0" Height="0" Panel.ZIndex="2" Stroke="Black" StrokeDashArray="3 3"/>
+        <Border x:Name="mainRectangleBorder" Width="0" Height="0" Canvas.Left="0" Canvas.Top="0" BorderThickness="1" BorderBrush="#FFE6DDE5"/>
+        <Rectangle x:Name="mainRectangle" Width="0" Height="0" Panel.ZIndex="2" Stroke="#FF251624" StrokeDashArray="4 4"/>
         <Border x:Name="mainMenuBorder" Canvas.Left="0" Canvas.Top="0" Padding="5" Visibility="Hidden" Panel.ZIndex="5">
             <Border.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -57,7 +55,7 @@
                         <GradientStop Color="#FFF8F6F9" Offset="1"/>
                     </LinearGradientBrush>
                 </StackPanel.Background>
-                <Button x:Name="screenshotButton" Width="86" Height="28" Content="Screenshot" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="Black" Click="ScreenshotButton_Click" Cursor="Arrow" Padding="5,5,5,5" BorderThickness="0"/>
+                <Button x:Name="screenshotButton" Width="86" Height="28" Content="Screenshot" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="Black" Click="ScreenshotButton_Click" Cursor="Arrow" Padding="5,5,5,5" BorderThickness="0" PreviewMouseDown="ScreenshotButton_PreviewMouseDown" PreviewMouseUp="ScreenshotButton_PreviewMouseUp"/>
                 <Button x:Name="drawButton" Width="86" Height="28" Content="Draw" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="Black" Click="DrawButton_Click" Cursor="Arrow" Padding="5,5,5,5" BorderThickness="0"/>
             </StackPanel>
         </Border>
@@ -69,7 +67,7 @@
                 </LinearGradientBrush>
             </Label.Background>
         </Label>
-        
+
     </Canvas>
 
 

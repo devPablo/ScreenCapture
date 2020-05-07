@@ -22,6 +22,7 @@ using PerMonitorDPI;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Resources;
+using System.Drawing.Imaging;
 
 namespace WPFApp
 {
@@ -77,7 +78,7 @@ namespace WPFApp
 
         private Bitmap TakeCroppedScreenshot()
         {
-            System.Windows.Size sourcePoints = CalculateDPI((int)initialCanvasX, (int)initialCanvasY);
+            System.Windows.Size sourcePoints = CalculateDPI((int)Canvas.GetLeft(mainRectangle)+1, (int)Canvas.GetTop(mainRectangle)+1);
             System.Windows.Size destinationPoints = CalculateDPI((int)mainRectangle.ActualWidth, (int)mainRectangle.ActualHeight);
 
             Bitmap bitmap = new Bitmap(screenWidth, screenHeight);
@@ -93,7 +94,7 @@ namespace WPFApp
             Bitmap bmp = new Bitmap(cropArea.Width, cropArea.Height);
             using (Graphics gph = Graphics.FromImage(bmp))
             {
-                gph.DrawImage(img, new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), cropArea, GraphicsUnit.Pixel);
+                gph.DrawImage(img, new System.Drawing.Rectangle(2, 2, bmp.Width, bmp.Height), cropArea, GraphicsUnit.Pixel);
             }
             return bmp;
         }
@@ -256,7 +257,8 @@ namespace WPFApp
                 {
                     Canvas.SetLeft(rightRectangle, initialCanvasX);
                     rightRectangle.Width = screenWidth - initialCanvasX;
-                } else
+                }
+                else
                 {
 
                 }
@@ -317,13 +319,31 @@ namespace WPFApp
                 System.Windows.Controls.Panel.SetZIndex(drawCanvas, 1);
                 System.Windows.Controls.Panel.SetZIndex(mainRectangle, 3);
                 drawCanvas.IsEnabled = false;
-            } else
+            }
+            else
             {
                 isDraw = true;
                 System.Windows.Controls.Panel.SetZIndex(drawCanvas, 3);
                 System.Windows.Controls.Panel.SetZIndex(mainRectangle, 1);
                 drawCanvas.IsEnabled = true;
             }
+        }
+
+        private void ScreenshotButton_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            SetElementsVisibilityOnScreenshot(Visibility.Hidden);
+        }
+
+        private void ScreenshotButton_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            SetElementsVisibilityOnScreenshot(Visibility.Visible);
+        }
+
+        private void SetElementsVisibilityOnScreenshot(Visibility visibility)
+        {
+            mainResolution.Visibility = visibility;
+            mainRectangleBorder.Visibility = visibility;
+            mainRectangle.Visibility = visibility;
         }
 
         private void StopApplication()

@@ -18,6 +18,7 @@ namespace WPFApp
     public partial class App : System.Windows.Application
     {
         MainWindow mainWindow = null;
+        NotifyIcon notifyIcon;
 
         private void Application_Startup(object sender, StartupEventArgs args)
         {
@@ -25,7 +26,7 @@ namespace WPFApp
             var hotKey = hotKeyManager.Register(Key.PrintScreen, ModifierKeys.None);
             hotKeyManager.KeyPressed += HotKeyManagerPressed;
 
-            NotifyIcon notifyIcon = new NotifyIcon
+            notifyIcon = new NotifyIcon
             {
                 Visible = true,
                 Icon = SystemIcons.Information
@@ -38,6 +39,11 @@ namespace WPFApp
             {
                 mainWindow = new MainWindow();
             }
+        }
+
+        private void Application_Exit(object sender, ExitEventArgs e)
+        {
+            notifyIcon.Dispose();
         }
     }
 }
