@@ -49,6 +49,10 @@ namespace WPFApp
         private string screenshotPath;
         private string screenshotName;
 
+        // Ink Canvas
+        System.Windows.Ink.StrokeCollection HISTORY_INK_REMOVED = new System.Windows.Ink.StrokeCollection();
+        private bool HISTORY_INK_HANDLE = false;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -60,13 +64,50 @@ namespace WPFApp
 
             mainCanvas.Cursor = System.Windows.Input.Cursors.Cross;
             InitScreenshot();
+
+            drawCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
+        }
+
+        private void Strokes_StrokesChanged(object sender, System.Windows.Ink.StrokeCollectionChangedEventArgs e)
+        {
+
+            if (e.Removed.Count > 0 && !HISTORY_INK_HANDLE)
+            {
+                HISTORY_INK_REMOVED.Add(e.Removed.First().Clone());
+            }
+
         }
 
         private void MainWindow_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
+            // Exit application
             if (e.Key == Key.Escape)
             {
                 StopApplication();
+            }
+
+            // Undo
+            if (e.Key == Key.Z && Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                if (drawCanvas.Strokes.Count > 0)
+                {
+                    HISTORY_INK_HANDLE = true;
+                    HISTORY_INK_REMOVED.Add(drawCanvas.Strokes.Last());
+                    drawCanvas.Strokes.Remove(drawCanvas.Strokes.Last());
+                    HISTORY_INK_HANDLE = false;
+                }
+            }
+
+            // Redo
+            if (e.Key == Key.Y && Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                if (HISTORY_INK_REMOVED.Count > 0)
+                {
+                    HISTORY_INK_HANDLE = true;
+                    drawCanvas.Strokes.Add(HISTORY_INK_REMOVED.Last());
+                    HISTORY_INK_REMOVED.Remove(HISTORY_INK_REMOVED.Last());
+                    HISTORY_INK_HANDLE = false;
+                }
             }
         }
 
