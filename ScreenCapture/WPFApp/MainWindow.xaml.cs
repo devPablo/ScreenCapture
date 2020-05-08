@@ -33,6 +33,12 @@ namespace WPFApp
     {
         private double initialCanvasX;
         private double initialCanvasY;
+
+        private double HISTORY_X = -1;
+        private double HISTORY_Y = -1;
+        private double HISTORY_WIDTH = -1;
+        private double HISTORY_HEIGHT = -1;
+
         private bool mouseDownState = false;
         private bool isDraw = false;
 
@@ -78,7 +84,7 @@ namespace WPFApp
 
         private Bitmap TakeCroppedScreenshot()
         {
-            System.Windows.Size sourcePoints = CalculateDPI((int)Canvas.GetLeft(mainRectangle)+1, (int)Canvas.GetTop(mainRectangle)+1);
+            System.Windows.Size sourcePoints = CalculateDPI((int)Canvas.GetLeft(mainRectangle) + 1, (int)Canvas.GetTop(mainRectangle) + 1);
             System.Windows.Size destinationPoints = CalculateDPI((int)mainRectangle.ActualWidth, (int)mainRectangle.ActualHeight);
 
             Bitmap bitmap = new Bitmap(screenWidth, screenHeight);
@@ -167,110 +173,23 @@ namespace WPFApp
 
             Canvas.SetLeft(mainRectangle, initialCanvasX);
             Canvas.SetTop(mainRectangle, initialCanvasY);
+
+            Canvas.SetLeft(mainRectangleBorder, initialCanvasX);
+            Canvas.SetLeft(mainRectangleBorder, initialCanvasY);
+
+            UpdateScreen(e.GetPosition(mainCanvas).X, e.GetPosition(mainCanvas).Y);
+
+
+
+
+
         }
 
         private void MainCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (mouseDownState)
             {
-                // Screen Handling
-                double eventX = e.GetPosition(mainCanvas).X;
-                double eventY = e.GetPosition(mainCanvas).Y;
-
-                if (eventX < initialCanvasX)
-                {
-                    Canvas.SetLeft(mainRectangle, eventX);
-                    Canvas.SetLeft(mainRectangleBorder, eventX);
-                }
-                else
-                {
-                    Canvas.SetLeft(mainRectangle, initialCanvasX);
-                    Canvas.SetLeft(mainRectangleBorder, initialCanvasX);
-
-                }
-
-                if (eventY < initialCanvasY)
-                {
-                    Canvas.SetTop(mainRectangle, eventY);
-                    Canvas.SetTop(mainRectangleBorder, eventY);
-                }
-                else
-                {
-                    Canvas.SetTop(mainRectangle, initialCanvasY);
-                    Canvas.SetTop(mainRectangleBorder, initialCanvasY);
-                }
-
-
-                mainRectangle.Width = Math.Abs(initialCanvasX - e.GetPosition(mainCanvas).X);
-                mainRectangle.Height = Math.Abs(initialCanvasY - e.GetPosition(mainCanvas).Y);
-
-                mainRectangleBorder.Width = Math.Abs(initialCanvasX - e.GetPosition(mainCanvas).X);
-                mainRectangleBorder.Height = Math.Abs(initialCanvasY - e.GetPosition(mainCanvas).Y);
-
-
-                // Dark Area
-
-                // Top
-                topRectangle.Width = screenWidth;
-                if (eventY < initialCanvasY)
-                {
-                    topRectangle.Height = Math.Abs(mainRectangle.Height - initialCanvasY);
-                }
-                else
-                {
-                    topRectangle.Height = initialCanvasY;
-                }
-
-                // Left
-                Canvas.SetTop(leftRectangle, topRectangle.Height);
-                leftRectangle.Height = screenHeight - topRectangle.Height;
-                if (eventX < initialCanvasX)
-                {
-                    leftRectangle.Width = Math.Abs(mainRectangle.Width - initialCanvasX);
-                }
-                else
-                {
-                    leftRectangle.Width = initialCanvasX;
-                }
-
-                // Bottom
-                Canvas.SetLeft(bottomRectangle, leftRectangle.Width);
-                bottomRectangle.Width = screenWidth - leftRectangle.Width;
-                bottomRectangle.Height = Math.Abs(screenHeight - (initialCanvasY + mainRectangle.Height));
-                if (eventY < initialCanvasY)
-                {
-                    Canvas.SetTop(bottomRectangle, initialCanvasY);
-                    bottomRectangle.Height = screenHeight - initialCanvasY;
-                }
-                else
-                {
-                    Canvas.SetTop(bottomRectangle, initialCanvasY + mainRectangle.Height);
-                }
-
-                // Right
-                Canvas.SetTop(rightRectangle, 0);
-                Canvas.SetLeft(rightRectangle, (initialCanvasX + mainRectangle.Width));
-                rightRectangle.Width = Math.Abs(screenWidth - (initialCanvasX + mainRectangle.Width));
-                rightRectangle.Height = screenHeight - bottomRectangle.Height;
-
-                if (eventX < initialCanvasX)
-                {
-                    Canvas.SetLeft(rightRectangle, initialCanvasX);
-                    rightRectangle.Width = screenWidth - initialCanvasX;
-                }
-                else
-                {
-
-                }
-
-                topRectangle.Width = Canvas.GetLeft(rightRectangle);
-
-
-                // Resolution Label Handling
-                System.Windows.Size actualCoordinates = CalculateDPI((int)mainRectangle.Width, (int)mainRectangle.Height);
-                mainResolution.Content = (int)actualCoordinates.Width + " x " + (int)actualCoordinates.Height;
-                Canvas.SetLeft(mainResolution, (initialCanvasX) + 1);
-                Canvas.SetTop(mainResolution, (initialCanvasY - mainResolution.ActualHeight - mainResolution.Padding.Top) - 1);
+                UpdateScreen(e.GetPosition(mainCanvas).X, e.GetPosition(mainCanvas).Y);
             }
         }
 
@@ -278,7 +197,23 @@ namespace WPFApp
         {
             if (mouseDownState)
             {
-                mouseDownState = false;
+                // Prevent missclick
+                System.Windows.Size actualCoordinates = CalculateDPI((int)mainRectangle.Width, (int)mainRectangle.Height);
+
+                if (actualCoordinates.Width == 0 || actualCoordinates.Height == 0)
+                {
+                    initialCanvasX = HISTORY_X;
+                    initialCanvasY = HISTORY_Y;
+                    UpdateScreen(HISTORY_X + HISTORY_WIDTH, HISTORY_Y + HISTORY_HEIGHT);
+                }
+                else
+                {
+                    HISTORY_X = Canvas.GetLeft(mainRectangle);
+                    HISTORY_Y = Canvas.GetTop(mainRectangle);
+
+                    HISTORY_WIDTH = mainRectangle.Width;
+                    HISTORY_HEIGHT = mainRectangle.Height;
+                }
 
                 // Init Menu
                 mainMenuBorder.Visibility = Visibility.Visible;
@@ -296,7 +231,107 @@ namespace WPFApp
                 // Ink Canvas
                 drawCanvas.Width = screenWidth;
                 drawCanvas.Height = screenHeight;
+
+                mouseDownState = false;
             }
+        }
+
+        private void UpdateScreen(double x, double y)
+        {
+            // Screen Handling
+            double eventX = x;
+            double eventY = y;
+
+            if (eventX < initialCanvasX)
+            {
+                Canvas.SetLeft(mainRectangle, eventX);
+                Canvas.SetLeft(mainRectangleBorder, eventX);
+            }
+            else
+            {
+                Canvas.SetLeft(mainRectangle, initialCanvasX);
+                Canvas.SetLeft(mainRectangleBorder, initialCanvasX);
+
+            }
+
+            if (eventY < initialCanvasY)
+            {
+                Canvas.SetTop(mainRectangle, eventY);
+                Canvas.SetTop(mainRectangleBorder, eventY);
+            }
+            else
+            {
+                Canvas.SetTop(mainRectangle, initialCanvasY);
+                Canvas.SetTop(mainRectangleBorder, initialCanvasY);
+            }
+
+
+            mainRectangle.Width = Math.Abs(initialCanvasX - eventX);
+            mainRectangle.Height = Math.Abs(initialCanvasY - eventY);
+
+            mainRectangleBorder.Width = Math.Abs(initialCanvasX - eventX);
+            mainRectangleBorder.Height = Math.Abs(initialCanvasY - eventY);
+
+
+            // Dark Area
+
+            // Top
+            topRectangle.Width = screenWidth;
+            if (eventY < initialCanvasY)
+            {
+                topRectangle.Height = Math.Abs(mainRectangle.Height - initialCanvasY);
+            }
+            else
+            {
+                topRectangle.Height = initialCanvasY;
+            }
+
+            // Left
+            Canvas.SetTop(leftRectangle, topRectangle.Height);
+            leftRectangle.Height = screenHeight - topRectangle.Height;
+            if (eventX < initialCanvasX)
+            {
+                leftRectangle.Width = Math.Abs(mainRectangle.Width - initialCanvasX);
+            }
+            else
+            {
+                leftRectangle.Width = initialCanvasX;
+            }
+
+            // Bottom
+            Canvas.SetLeft(bottomRectangle, leftRectangle.Width);
+            bottomRectangle.Width = screenWidth - leftRectangle.Width;
+            bottomRectangle.Height = Math.Abs(screenHeight - (initialCanvasY + mainRectangle.Height));
+            if (eventY < initialCanvasY)
+            {
+                Canvas.SetTop(bottomRectangle, initialCanvasY);
+                bottomRectangle.Height = screenHeight - initialCanvasY;
+            }
+            else
+            {
+                Canvas.SetTop(bottomRectangle, initialCanvasY + mainRectangle.Height);
+            }
+
+            // Right
+            Canvas.SetTop(rightRectangle, 0);
+            Canvas.SetLeft(rightRectangle, (initialCanvasX + mainRectangle.Width));
+            rightRectangle.Width = Math.Abs(screenWidth - (initialCanvasX + mainRectangle.Width));
+            rightRectangle.Height = screenHeight - bottomRectangle.Height;
+
+            if (eventX < initialCanvasX)
+            {
+                Canvas.SetLeft(rightRectangle, initialCanvasX);
+                rightRectangle.Width = screenWidth - initialCanvasX;
+            }
+
+            topRectangle.Width = Canvas.GetLeft(rightRectangle);
+
+
+            // Resolution Label Handling
+            System.Windows.Size actualCoordinates = CalculateDPI((int)mainRectangle.Width, (int)mainRectangle.Height);
+            mainResolution.Content = (int)actualCoordinates.Width + " x " + (int)actualCoordinates.Height;
+            Canvas.SetLeft(mainResolution, (initialCanvasX) + 1);
+            Canvas.SetTop(mainResolution, (initialCanvasY - mainResolution.ActualHeight - mainResolution.Padding.Top) - 1);
         }
 
         private void ScreenshotButton_Click(object sender, RoutedEventArgs e)
