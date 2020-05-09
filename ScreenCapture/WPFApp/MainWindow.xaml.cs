@@ -96,7 +96,7 @@ namespace WPFApp
             }
 
             // Undo
-            if (e.Key == Key.Z && Keyboard.IsKeyDown(Key.LeftCtrl))
+            if (e.Key == Key.Z && Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.LeftShift))
             {
                 if (drawCanvas.Strokes.Count > 0)
                 {
@@ -108,7 +108,7 @@ namespace WPFApp
             }
 
             // Redo
-            if (e.Key == Key.Y && Keyboard.IsKeyDown(Key.LeftCtrl))
+            if (e.Key == Key.Y && Keyboard.IsKeyDown(Key.LeftCtrl) || e.Key == Key.Z && Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.LeftShift))
             {
                 if (HISTORY_INK_REMOVED.Count > 0)
                 {
