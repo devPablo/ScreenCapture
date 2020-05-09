@@ -83,7 +83,16 @@ namespace WPFApp
             // Exit application
             if (e.Key == Key.Escape)
             {
-                StopApplication();
+                if (isDraw)
+                {
+                    isDraw = false;
+                    System.Windows.Controls.Panel.SetZIndex(drawCanvas, 1);
+                    System.Windows.Controls.Panel.SetZIndex(mainRectangle, 3);
+                    drawCanvas.IsEnabled = false;
+                } else
+                {
+                    StopApplication();
+                }
             }
 
             // Undo
