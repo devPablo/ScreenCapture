@@ -170,5 +170,8 @@
   <ItemGroup>
     <None Include="Resources\Cursors\Crosshair.cur" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icons\ICON_EXIT.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

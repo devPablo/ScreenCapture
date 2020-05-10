@@ -214,7 +214,7 @@ namespace WPFApp
 
         private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            mainMenuBorder.Visibility = Visibility.Hidden;
+            mainMenu.Visibility = Visibility.Hidden;
             mainResolution.Visibility = Visibility.Visible;
 
             initialCanvasX = e.GetPosition(mainCanvas).X;
@@ -266,17 +266,17 @@ namespace WPFApp
                 }
 
                 // Init Menu
-                mainMenuBorder.Visibility = Visibility.Visible;
-                mainMenuBorder.Width = screenshotButton.Width * mainMenu.Children.Count;
-                mainMenuBorder.Height = mainMenuBorder.Height + screenshotButton.Height / 2;
+                mainMenu.Visibility = Visibility.Visible;
+                mainMenu.Width = (screenshotButton.Width * mainMenu.Children.Count-1) - 30;
+                mainMenu.Height = mainMenu.Height + screenshotButton.Height / 2;
 
                 // Middle
                 //Canvas.SetLeft(mainMenuBorder, mainWindow.Width / 2 - mainMenuBorder.Width / 2);
                 //Canvas.SetTop(mainMenuBorder, mainWindow.Height * 0.85);
 
                 // Corner
-                Canvas.SetLeft(mainMenuBorder, (initialCanvasX + mainRectangle.Width) - mainMenuBorder.Width - 1);
-                Canvas.SetTop(mainMenuBorder, (initialCanvasY + mainRectangle.Height) + 1);
+                Canvas.SetLeft(mainMenu, (initialCanvasX + mainRectangle.Width) - mainMenu.Width - 1);
+                Canvas.SetTop(mainMenu, (initialCanvasY + mainRectangle.Height) + 10);
 
                 // Ink Canvas
                 drawCanvas.Width = screenWidth;
@@ -366,7 +366,7 @@ namespace WPFApp
             Canvas.SetTop(rightRectangle, 0);
             Canvas.SetLeft(rightRectangle, (initialCanvasX + mainRectangle.Width));
             rightRectangle.Width = Math.Abs(screenWidth - (initialCanvasX + mainRectangle.Width));
-            rightRectangle.Height = screenHeight - bottomRectangle.Height;
+            rightRectangle.Height = Math.Abs(screenHeight - bottomRectangle.Height);
 
             if (eventX < initialCanvasX)
             {
@@ -429,6 +429,11 @@ namespace WPFApp
             mainResolution.Visibility = visibility;
             mainRectangleBorder.Visibility = visibility;
             mainRectangle.Visibility = visibility;
+        }
+
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            StopApplication();
         }
 
         private void StopApplication()

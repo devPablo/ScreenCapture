@@ -6,6 +6,8 @@
              ShutdownMode="OnExplicitShutdown"
              Exit="Application_Exit">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <BitmapImage x:Key="ICON_EXIT" UriSource="Resources/Icons/ICON_EXIT.png"></BitmapImage>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

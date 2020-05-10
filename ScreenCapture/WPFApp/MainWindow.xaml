@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WPFApp"
         mc:Ignorable="d"
         Title="MainWindow" WindowStyle="None" ShowInTaskbar="False" Topmost="True" ForceCursor="True" Visibility="Visible" ResizeMode="NoResize" Left="0" Top="0" WindowState="Maximized" PreviewKeyDown="MainWindow_PreviewKeyDown">
-    
+
     <Canvas x:Name="mainCanvas" Margin="0" MouseDown="MainCanvas_MouseDown" MouseMove="MainCanvas_MouseMove" MouseUp="MainCanvas_MouseUp">
 
         <InkCanvas x:Name="drawCanvas" Width="0" Height="0" Canvas.Left="0" Canvas.Top="0" Cursor="Arrow" ForceCursor="True" Background="{x:Null}">
@@ -41,24 +41,36 @@
 
         <Border x:Name="mainRectangleBorder" Width="0" Height="0" Canvas.Left="0" Canvas.Top="0" BorderThickness="1" BorderBrush="#FFE6DDE5"/>
         <Rectangle x:Name="mainRectangle" Width="0" Height="0" Panel.ZIndex="2" Stroke="#FF251624" StrokeDashArray="4 4"/>
-        <Border x:Name="mainMenuBorder" Canvas.Left="0" Canvas.Top="0" Padding="5" Visibility="Hidden" Panel.ZIndex="5">
-            <Border.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFF4F5F7" Offset="0"/>
-                    <GradientStop Color="#FFF8F6F9" Offset="1"/>
-                </LinearGradientBrush>
-            </Border.Background>
-            <StackPanel x:Name="mainMenu" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
-                <StackPanel.Background>
+
+        <StackPanel x:Name="mainMenu" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Visibility="Hidden" Panel.ZIndex="10">
+            <StackPanel.Effect>
+                <DropShadowEffect Direction="270" Opacity="0.6" Color="#FF3A3A3A" BlurRadius="10" ShadowDepth="2.5"/>
+            </StackPanel.Effect>
+            <Button x:Name="exitButton" Width="30" Height="35" BorderBrush="{x:Null}" Cursor="Arrow" BorderThickness="0" Click="ExitButton_Click">
+                <Button.Background>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                         <GradientStop Color="#FFF4F5F7" Offset="0"/>
                         <GradientStop Color="#FFF8F6F9" Offset="1"/>
                     </LinearGradientBrush>
-                </StackPanel.Background>
-                <Button x:Name="screenshotButton" Width="86" Height="28" Content="Screenshot" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="Black" Click="ScreenshotButton_Click" Cursor="Arrow" Padding="5,5,5,5" BorderThickness="0" PreviewMouseDown="ScreenshotButton_PreviewMouseDown" PreviewMouseUp="ScreenshotButton_PreviewMouseUp"/>
-                <Button x:Name="drawButton" Width="86" Height="28" Content="Draw" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="Black" Click="DrawButton_Click" Cursor="Arrow" Padding="5,5,5,5" BorderThickness="0"/>
-            </StackPanel>
-        </Border>
+                </Button.Background>
+                <Viewbox Width="12" Height="12">
+                    <Image Source="{StaticResource ICON_EXIT}" />
+                </Viewbox>
+            </Button>
+            <Button x:Name="drawButton" Width="75" Height="35" Content="Draw" BorderBrush="{x:Null}" Foreground="Black" Click="DrawButton_Click" Cursor="Arrow" Padding="5,5,5,5" BorderThickness="0" FontFamily="Roboto Light" FontSize="13" FontWeight="Bold">
+                <Button.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+                        <GradientStop Color="#FFF4F5F7" Offset="0"/>
+                        <GradientStop Color="#FFF8F6F9" Offset="1"/>
+                    </LinearGradientBrush>
+                </Button.Background>
+            </Button>
+            <Button x:Name="screenshotButton" Width="75" Height="35" Content="Save" BorderBrush="{x:Null}" Foreground="White" Click="ScreenshotButton_Click" Cursor="Arrow" Padding="5,5,5,5" BorderThickness="0" PreviewMouseDown="ScreenshotButton_PreviewMouseDown" PreviewMouseUp="ScreenshotButton_PreviewMouseUp" FontFamily="Roboto Light" FontSize="13" FontWeight="Bold">
+                <Button.Background>
+                    <SolidColorBrush Color="#FF377DFF"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
         <Label x:Name="mainResolution" Padding="3" Visibility="Hidden" FontFamily="Consolas">
             <Label.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
