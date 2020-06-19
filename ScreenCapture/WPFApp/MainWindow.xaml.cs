@@ -1,28 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Input;
-using GlobalHotKey;
-using PerMonitorDPI;
 using System.Diagnostics;
-using System.IO;
-using System.Windows.Resources;
-using System.Drawing.Imaging;
 
 namespace WPFApp
 {
@@ -122,14 +107,15 @@ namespace WPFApp
 
         private void InitScreenshot()
         {
-            Bitmap bitmap = new Bitmap(screenWidth, screenHeight);
-            Graphics graphics = Graphics.FromImage(bitmap);
+            using (Bitmap bitmap = new Bitmap(screenWidth, screenHeight))
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.CopyFromScreen(0, 0, 0, 0, bitmap.Size);
 
-            graphics.CopyFromScreen(0, 0, 0, 0, bitmap.Size);
-
-            BitmapSource bitmapSource = BitmapConversion.ToWpfBitmap(bitmap);
-            this.image = bitmap;
-            mainImage.Source = bitmapSource;
+                BitmapSource bitmapSource = BitmapConversion.ToWpfBitmap(bitmap);
+                this.image = bitmap;
+                mainImage.Source = bitmapSource;
+            }
         }
 
         private Bitmap TakeCroppedScreenshot()
@@ -137,20 +123,22 @@ namespace WPFApp
             System.Windows.Size sourcePoints = CalculateDPI((int)Canvas.GetLeft(mainRectangle) + 1, (int)Canvas.GetTop(mainRectangle) + 1);
             System.Windows.Size destinationPoints = CalculateDPI((int)mainRectangle.ActualWidth, (int)mainRectangle.ActualHeight);
 
-            Bitmap bitmap = new Bitmap(screenWidth, screenHeight);
-            Graphics graphics = Graphics.FromImage(bitmap);
-            graphics.CopyFromScreen(0, 0, 0, 0, bitmap.Size);
+            using (Bitmap bitmap = new Bitmap(screenWidth, screenHeight))
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.CopyFromScreen(0, 0, 0, 0, bitmap.Size);
 
-            Bitmap bitmap2 = CropBitmap(bitmap, new System.Drawing.Rectangle((int)sourcePoints.Width, (int)sourcePoints.Height, (int)destinationPoints.Width, (int)destinationPoints.Height));
-            return bitmap2;
+                Bitmap bitmap2 = CropBitmap(bitmap, new Rectangle((int)sourcePoints.Width, (int)sourcePoints.Height, (int)destinationPoints.Width, (int)destinationPoints.Height));
+                return bitmap2;
+            }
         }
 
-        private Bitmap CropBitmap(Bitmap img, System.Drawing.Rectangle cropArea)
+        private Bitmap CropBitmap(Bitmap img, Rectangle cropArea)
         {
             Bitmap bmp = new Bitmap(cropArea.Width, cropArea.Height);
             using (Graphics gph = Graphics.FromImage(bmp))
             {
-                gph.DrawImage(img, new System.Drawing.Rectangle(2, 2, bmp.Width, bmp.Height), cropArea, GraphicsUnit.Pixel);
+                gph.DrawImage(img, new Rectangle(2, 2, bmp.Width, bmp.Height), cropArea, GraphicsUnit.Pixel);
             }
             return bmp;
         }
@@ -374,7 +362,11 @@ namespace WPFApp
                 rightRectangle.Width = screenWidth - initialCanvasX;
             }
 
-            topRectangle.Width = Canvas.GetLeft(rightRectangle);
+            if (!(Canvas.GetLeft(rightRectangle) < 0))
+            {
+                topRectangle.Width = Canvas.GetLeft(rightRectangle);
+            }
+            
 
 
             // Resolution Label Handling
@@ -438,6 +430,10 @@ namespace WPFApp
 
         private void StopApplication()
         {
+            image.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
             mainWindow.Close();
         }
     }
